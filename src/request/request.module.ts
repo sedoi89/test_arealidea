@@ -5,6 +5,7 @@ import {SequelizeModule} from "@nestjs/sequelize";
 import {RequestItem} from "./request.model";
 import {Project} from "../project/project.model";
 import {StateModule} from "../status/state.module";
+import {RequestState} from "../status/request-states.model";
 
 
 
@@ -13,7 +14,7 @@ import {StateModule} from "../status/state.module";
     controllers: [RequestController],
     providers: [RequestService],
     imports: [
-        SequelizeModule.forFeature([RequestItem,  Project]),
+        SequelizeModule.forFeature([RequestItem,  Project, RequestState]),
 StateModule
 
     ],

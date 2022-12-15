@@ -6,6 +6,7 @@ import { ProjectModule } from './project/project.module';
 import {Project} from "./project/project.model";
 import { State } from "./status/state.model";
 import {StateModule} from "./status/state.module";
+import {RequestState} from "./status/request-states.model";
 
 
 
@@ -21,12 +22,13 @@ import {StateModule} from "./status/state.module";
             username: 'postgres',
             password: '1234',
             database: 'test_arealidea',
-            models: [RequestItem, Project,State],
+            models: [RequestItem, Project,State,RequestState],
             autoLoadModels: true
         }),
         RequestModule,
         ProjectModule,
         StateModule,
+
     ]
 })
 export class AppModule {

@@ -3,6 +3,7 @@ import {StateController} from "./state.controller";
 import {SequelizeModule} from "@nestjs/sequelize";
 import {StateService} from "./state.service";
 import {State} from "./state.model";
+import {RequestState} from "./request-states.model";
 
 
 
@@ -10,7 +11,7 @@ import {State} from "./state.model";
     controllers: [StateController],
     providers: [StateService],
     imports: [
-        SequelizeModule.forFeature([State ]),
+        SequelizeModule.forFeature([State,RequestState]),
     ],
     exports: [StateService]
 

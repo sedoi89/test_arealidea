@@ -1,5 +1,7 @@
-import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
+import {BelongsTo, BelongsToMany, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
 import {Project} from "../project/project.model";
+import {State} from "../status/state.model";
+import {RequestState} from "../status/request-states.model";
 
 
 
@@ -22,14 +24,15 @@ export class RequestItem extends Model<RequestItem, requestAttrs> {
     @Column({type: DataType.STRING, allowNull: false})
     description: string;
 
-    @Column({type: DataType.STRING})
-    status: string;
-
     @ForeignKey(() => Project)
     @Column({type: DataType.INTEGER, defaultValue: null})
     project_ID: number;
+
     @BelongsTo(() => Project)
     project: Project
+
+    @BelongsToMany(() => State, ()=>RequestState)
+    currentStatus: State[]
 
 
 }
