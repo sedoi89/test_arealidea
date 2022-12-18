@@ -1,10 +1,12 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {InjectModel} from "@nestjs/sequelize";
 import {RequestItem} from "./request.model";
 import {CreateRequestDto} from "./dto/create-request.dto";
 import {UpdateRequestDto} from "./dto/update-request.dto";
 import { StateService } from 'src/status/state.service';
 import {StatusSwitchDto} from "../status/dto/status-switch.dto";
+import {ProjectService} from "../project/project.service";
+
 
 
 
@@ -14,13 +16,23 @@ import {StatusSwitchDto} from "../status/dto/status-switch.dto";
 @Injectable()
 
 export class RequestService {
-    constructor(@InjectModel(RequestItem) private requestRep: typeof RequestItem,
-                private stateRep: StateService) {}
+    constructor(
+
+        @InjectModel(RequestItem) private requestRep: typeof RequestItem,
+                private stateRep: StateService,
+        @Inject(forwardRef(()=> ProjectService))
+        private projectService: ProjectService
+    ) {}
 
     async createRequest(dto: CreateRequestDto) {
-        const request = await  this.requestRep.create(dto);
-        const status = await this.stateRep.findStatusById(1)
-        await request.$set('currentStatus', status)
+        const request = await  this.requestRep.create({title:dto.title, description: dto.description});
+        const status = await this.stateRep.findStatusByValue('preform')
+        await request.$set('currentStatus', status);
+          if (dto.bind) {
+              await this.projectService.bindRequests(dto.projectID, request.id)
+              return request
+          }
+
        return request
     }
 

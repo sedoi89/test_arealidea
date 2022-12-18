@@ -25,8 +25,9 @@ export class RequestItem extends Model<RequestItem, requestAttrs> {
     description: string;
 
     @ForeignKey(() => Project)
-    @Column({type: DataType.INTEGER, defaultValue: null})
+    @Column({type: DataType.INTEGER, defaultValue: null, onDelete: 'CASCADE'})
     project_ID: number;
+
 
     @BelongsTo(() => Project)
     project: Project

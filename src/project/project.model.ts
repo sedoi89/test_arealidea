@@ -13,13 +13,13 @@ interface projectAttrs {
 
 @Table({tableName: 'project'})
 export class Project extends Model<Project, projectAttrs> {
-    @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
+    @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true, onDelete: 'cascade'})
     id: number;
 
     @Column({type: DataType.STRING, allowNull: false})
     title: string;
 
-    @HasMany(() => RequestItem)
+    @HasMany(() => RequestItem, {onDelete: 'cascade'})
     requests: RequestItem[]
 
 

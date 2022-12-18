@@ -1,20 +1,24 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {InjectModel} from "@nestjs/sequelize";
 import {Project} from "./project.model";
 import {CreateProjectDto} from "./dto/create-project.dto";
 import {RequestService} from "../request/request.service";
-import {AddRequestsDto} from "./dto/add-requests.dto";
 import {UnbindRequestsDtoDto} from "./dto/unbind-requests.dto";
 import {GetProjectRequestsDto} from "./dto/get-project-requests.dto";
 import {UpdateProjectDto} from "./dto/update-project.dto";
+
 
 
 @Injectable()
 
 export class ProjectService {
 
-    constructor(@InjectModel(Project) private projectRep: typeof Project,
-                private reqService: RequestService) {}
+    constructor(
+        @InjectModel(Project) private projectRep: typeof Project,
+        @Inject(forwardRef(() => RequestService))
+        private requestService: RequestService
+    ) {
+    }
 
     async createProject(dto: CreateProjectDto) {
         const project = await this.projectRep.create(dto);
@@ -22,31 +26,31 @@ export class ProjectService {
         return project
     }
 
-    async getAllProjects () {
-        const projects = await this.projectRep.findAll({include: {all: true}})
+    async getAllProjects() {
+        const projects = await this.projectRep.findAll({include: {all: true, nested: true}})
         return projects
     }
 
-    async getProjectById (id: number) {
-        const request = await this.projectRep.findOne({where: {id}, include: {all: true}})
+    async getProjectById(id: number) {
+        const request = await this.projectRep.findOne({where: {id}, include: {all: true, nested: true}})
         return request
     }
 
-    async bindRequests (dto: AddRequestsDto) {
-        const project = await this.projectRep.findByPk(dto.projectId);
-        const requestID = await this.reqService.getRequestById(dto.requestId);
+    async bindRequests(projectID, requestId) {
+        const project = await this.projectRep.findByPk(projectID);
+        const requestID = await this.requestService.getRequestById(requestId);
 
         if (project && requestID) {
             await project.$add('requests', requestID)
 
-            return dto;
+            return requestID
         }
         throw new HttpException('Ошибка', HttpStatus.NOT_FOUND)
     }
 
     async unBindRequest(dto: UnbindRequestsDtoDto) {
         const project = await this.projectRep.findByPk(dto.projectId);
-        const requestID = await this.reqService.getRequestById(dto.requestId);
+        const requestID = await this.requestService.getRequestById(dto.requestId);
 
         if (project && requestID) {
             await project.$remove('requests', requestID)
@@ -57,22 +61,21 @@ export class ProjectService {
     }
 
     async getProjectRequests(dto: GetProjectRequestsDto) {
-        const reqs = await this.reqService.getAllRequests(dto.projectId)
+        const reqs = await this.requestService.getAllRequests(dto.projectId)
         return reqs
     }
 
     async updateProject(dto: UpdateProjectDto) {
         const project = await this.getProjectById(dto.projectId);
-        dto.title !== project.title? await project.update({'title': dto.title}) : '';
+        dto.title !== project.title ? await project.update({'title': dto.title}) : '';
 
         return dto
     }
 
     async deleteProject(dto: GetProjectRequestsDto) {
         const project = await this.getProjectById(dto.projectId);
-         await project.sequelize.truncate({cascade: true}).then(() => {
-             project.destroy()
-         })
+        await project.destroy({force: true})
+
         return project
     }
 

@@ -1,15 +1,14 @@
 import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
 import {ProjectService} from "./project.service";
 import {CreateProjectDto} from "./dto/create-project.dto";
-import {RequestService} from "../request/request.service";
-import {AddRequestsDto} from "./dto/add-requests.dto";
 import {UnbindRequestsDtoDto} from "./dto/unbind-requests.dto";
 import {GetProjectRequestsDto} from "./dto/get-project-requests.dto";
 import {UpdateProjectDto} from "./dto/update-project.dto";
+import {BindDto} from "../request/dto/bind.dto";
 
 @Controller('project')
 export class ProjectController {
-    constructor(private ProjectService: ProjectService, private reqServ: RequestService) {
+    constructor(private ProjectService: ProjectService) {
     }
 
     @Post()
@@ -28,8 +27,8 @@ export class ProjectController {
     }
 
     @Post('/bind')
-    bind(@Body() dto: AddRequestsDto) {
-        return this.ProjectService.bindRequests(dto)
+    bind(@Body() dto: BindDto) {
+        return this.ProjectService.bindRequests(dto.projectID, dto.requestID)
     }
 
     @Post('/unbind')

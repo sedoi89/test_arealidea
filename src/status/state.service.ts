@@ -12,8 +12,13 @@ export class StateService {
     async setState(dto: StatusDto) {
 
         if(dto) {
-            const state = await this.statusRep.create(dto)
-            return state
+            await this.statusRep.create({title: 'Заготовка', cod: 'preform'});
+            await this.statusRep.create({title: 'В работе', cod: 'in_work'});
+            await this.statusRep.create({title: 'На согласовании', cod: 'for_approval'});
+            await this.statusRep.create({title: 'Отклонена', cod: 'accepted'});
+            await this.statusRep.create({title: 'Принята', cod: 'rejected'});
+
+            return dto
         }
         const state = await this.statusRep.create()
 
