@@ -31,15 +31,15 @@ export class RequestController {
 
     @Delete()
     deleteRequest(@Body() dto: DeleteRequestDto) {
-        return this.requestService.deleteRequest(dto.requestId)
+        return this.requestService.deleteRequest(dto)
     }
 
-    @Post('/:id/status/next')
+    @Post('/status/next')
     nextStatus(@Body() dto: StatusSwitchDto) {
         return this.requestService.nextStatus(dto)
     }
 
-    @Post('/:id/status/prev')
+    @Post('/status/prev')
     prevStatus(@Body() dto: StatusSwitchDto) {
         return this.requestService.prevStatus(dto)
     }

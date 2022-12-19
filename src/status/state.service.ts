@@ -24,6 +24,9 @@ export class StateService {
 
         return state
     }
+    async fetchAll() {
+        return await this.statusRep.findAll()
+    }
 
    async findStatusByValue(value: string) {
         const state = await this.statusRep.findOne({where: {cod: value}})

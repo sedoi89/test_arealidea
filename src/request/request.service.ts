@@ -6,6 +6,7 @@ import {UpdateRequestDto} from "./dto/update-request.dto";
 import { StateService } from 'src/status/state.service';
 import {StatusSwitchDto} from "../status/dto/status-switch.dto";
 import {ProjectService} from "../project/project.service";
+import {DeleteRequestDto} from "./dto/delete-request.dto";
 
 
 
@@ -30,10 +31,11 @@ export class RequestService {
         await request.$set('currentStatus', status);
           if (dto.bind) {
               await this.projectService.bindRequests(dto.projectID, request.id)
-              return request
+              const newRequest = await this.requestRep.findOne({where: {id: request.id}, include:{all: true, nested: true}})
+              return newRequest
           }
-
-       return request
+        const newRequest = await this.requestRep.findOne({where: {id: request.id}, include: {all:true, nested: true}})
+       return newRequest
     }
 
     async getAllUnexpectedRequests () {
@@ -60,11 +62,11 @@ export class RequestService {
         const request = await this.getRequestById(dto.requestId);
         dto.title !== request.title? await request.update({'title': dto.title}) : '';
         dto.description !== request.description? await request.update({'description': dto.description}) : ''
-        return dto
+        return request
     }
 
-    async deleteRequest(id: number) {
-        const request = await this.getRequestById(id);
+    async deleteRequest(dto: DeleteRequestDto) {
+        const request = await this.getRequestById(dto.requestId);
         await request.destroy();
         return request
     }
@@ -72,6 +74,11 @@ export class RequestService {
         const request = await this.getRequestById(dto.request_ID);
         const status = await this.stateRep.findStatusByValue(request.currentStatus[0].cod);
 
+        if (dto.value) {
+            const newStatus = await this.stateRep.findStatusByValue(dto.value);
+            await request.$set('currentStatus', newStatus);
+            return request
+        }
         if (status.cod === 'for_approval' && dto.complete) {
             const newStatus = await this.stateRep.findStatusByValue('accepted');
             await request.$set('currentStatus', newStatus);
