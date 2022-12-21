@@ -17,8 +17,8 @@ export class StateService {
             await this.statusRep.create({title: 'На согласовании', cod: 'for_approval'});
             await this.statusRep.create({title: 'Отклонена', cod: 'accepted'});
             await this.statusRep.create({title: 'Принята', cod: 'rejected'});
-
-            return dto
+            const statuses = await this.statusRep.findAll();
+            return statuses
         }
         const state = await this.statusRep.create()
 
